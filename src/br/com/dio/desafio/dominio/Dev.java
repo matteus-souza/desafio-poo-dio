@@ -2,64 +2,102 @@ package br.com.dio.desafio.dominio;
 
 import java.util.*;
 
+/**
+ * Representa um desenvolvedor que pode se inscrever em bootcamps.
+ */
 public class Dev {
     private String nome;
     private Set<Conteudo> conteudosInscritos = new LinkedHashSet<>();
     private Set<Conteudo> conteudosConcluidos = new LinkedHashSet<>();
 
-    public void inscreverBootcamp(Bootcamp bootcamp){
+    public Dev() {
+    }
+
+    /**
+     * Construtor com nome para criação segura.
+     */
+    public Dev(String nome) {
+        setNome(nome);
+    }
+
+    public void inscreverBootcamp(Bootcamp bootcamp) {
+        if (bootcamp == null) {
+            throw new IllegalArgumentException("Bootcamp não pode ser nulo");
+        }
+        if (bootcamp.getDevsInscritos().contains(this)) {
+            throw new IllegalArgumentException("Dev já está inscrito neste bootcamp");
+        }
         this.conteudosInscritos.addAll(bootcamp.getConteudos());
         bootcamp.getDevsInscritos().add(this);
     }
 
     public void progredir() {
         Optional<Conteudo> conteudo = this.conteudosInscritos.stream().findFirst();
-        if(conteudo.isPresent()) {
+        if (conteudo.isPresent()) {
             this.conteudosConcluidos.add(conteudo.get());
             this.conteudosInscritos.remove(conteudo.get());
         } else {
-            System.err.println("Você não está matriculado em nenhum conteúdo!");
+            throw new RuntimeException("Você não está matriculado em nenhum conteúdo!");
         }
     }
 
     public double calcularTotalXp() {
-        Iterator<Conteudo> iterator = this.conteudosConcluidos.iterator();
-        double soma = 0;
-        while(iterator.hasNext()){
-            double next = iterator.next().calcularXp();
-            soma += next;
-        }
-        return soma;
-
-        /*return this.conteudosConcluidos
+        return this.conteudosConcluidos
                 .stream()
                 .mapToDouble(Conteudo::calcularXp)
-                .sum();*/
+                .sum();
     }
 
+    /**
+     * Calcula a porcentagem de progresso no bootcamp.
+     */
+    public double calcularProgressoBootcamp() {
+        int totalConteudos = conteudosInscritos.size() + conteudosConcluidos.size();
+        if (totalConteudos == 0) {
+            return 0.0;
+        }
+        return (conteudosConcluidos.size() * 100.0) / totalConteudos;
+    }
+
+    /**
+     * Verifica se o dev completou todos os conteúdos.
+     */
+    public boolean completouTodosConteudos() {
+        return conteudosInscritos.isEmpty() && !conteudosConcluidos.isEmpty();
+    }
+
+    /**
+     * Obtém o próximo conteúdo a ser estudado.
+     */
+    public Optional<Conteudo> getProximoConteudo() {
+        return conteudosInscritos.stream().findFirst();
+    }
 
     public String getNome() {
         return nome;
     }
 
     public void setNome(String nome) {
-        this.nome = nome;
+        if (nome == null || nome.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nome não pode ser nulo ou vazio");
+        }
+        this.nome = nome.trim();
     }
 
     public Set<Conteudo> getConteudosInscritos() {
-        return conteudosInscritos;
+        return Collections.unmodifiableSet(conteudosInscritos);
     }
 
     public void setConteudosInscritos(Set<Conteudo> conteudosInscritos) {
-        this.conteudosInscritos = conteudosInscritos;
+        this.conteudosInscritos = new LinkedHashSet<>(conteudosInscritos != null ? conteudosInscritos : Collections.emptySet());
     }
 
     public Set<Conteudo> getConteudosConcluidos() {
-        return conteudosConcluidos;
+        return Collections.unmodifiableSet(conteudosConcluidos);
     }
 
     public void setConteudosConcluidos(Set<Conteudo> conteudosConcluidos) {
-        this.conteudosConcluidos = conteudosConcluidos;
+        this.conteudosConcluidos = new LinkedHashSet<>(conteudosConcluidos != null ? conteudosConcluidos : Collections.emptySet());
     }
 
     @Override
@@ -67,11 +105,22 @@ public class Dev {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Dev dev = (Dev) o;
-        return Objects.equals(nome, dev.nome) && Objects.equals(conteudosInscritos, dev.conteudosInscritos) && Objects.equals(conteudosConcluidos, dev.conteudosConcluidos);
+        return Objects.equals(nome, dev.nome);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nome, conteudosInscritos, conteudosConcluidos);
+        return Objects.hash(nome);
+    }
+
+    @Override
+    public String toString() {
+        return "Dev{" +
+                "nome='" + nome + '\'' +
+                ", conteudosInscritos=" + conteudosInscritos.size() +
+                ", conteudosConcluidos=" + conteudosConcluidos.size() +
+                ", xpTotal=" + calcularTotalXp() +
+                ", progresso=" + String.format("%.1f", calcularProgressoBootcamp()) + "%" +
+                '}';
     }
 }
