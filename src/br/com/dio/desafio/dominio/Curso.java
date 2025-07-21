@@ -1,23 +1,37 @@
 package br.com.dio.desafio.dominio;
 
-public class Curso extends Conteudo{
+/**
+ * Representa um curso com carga horária específica.
+ */
+public class Curso extends Conteudo {
 
     private int cargaHoraria;
+
+    public Curso() {
+    }
+
+    /**
+     * Construtor com parâmetros para criação segura.
+     */
+    public Curso(String titulo, String descricao, int cargaHoraria) {
+        setTitulo(titulo);
+        setDescricao(descricao);
+        setCargaHoraria(cargaHoraria);
+    }
 
     @Override
     public double calcularXp() {
         return XP_PADRAO * cargaHoraria;
     }
 
-    public Curso() {
-    }
-
-
     public int getCargaHoraria() {
         return cargaHoraria;
     }
 
     public void setCargaHoraria(int cargaHoraria) {
+        if (cargaHoraria <= 0) {
+            throw new IllegalArgumentException("Carga horária deve ser maior que zero");
+        }
         this.cargaHoraria = cargaHoraria;
     }
 
@@ -27,6 +41,7 @@ public class Curso extends Conteudo{
                 "titulo='" + getTitulo() + '\'' +
                 ", descricao='" + getDescricao() + '\'' +
                 ", cargaHoraria=" + cargaHoraria +
+                ", xp=" + calcularXp() +
                 '}';
     }
 }

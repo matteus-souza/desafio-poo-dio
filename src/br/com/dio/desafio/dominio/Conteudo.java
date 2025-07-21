@@ -1,5 +1,8 @@
 package br.com.dio.desafio.dominio;
 
+/**
+ * Classe abstrata que representa um conteúdo educacional.
+ */
 public abstract class Conteudo {
 
     protected static final double XP_PADRAO = 10d;
@@ -7,6 +10,9 @@ public abstract class Conteudo {
     private String titulo;
     private String descricao;
 
+    /**
+     * Calcula o XP que este conteúdo proporciona.
+     */
     public abstract double calcularXp();
 
     public String getTitulo() {
@@ -14,7 +20,10 @@ public abstract class Conteudo {
     }
 
     public void setTitulo(String titulo) {
-        this.titulo = titulo;
+        if (titulo == null || titulo.trim().isEmpty()) {
+            throw new IllegalArgumentException("Título não pode ser nulo ou vazio");
+        }
+        this.titulo = titulo.trim();
     }
 
     public String getDescricao() {
@@ -22,6 +31,9 @@ public abstract class Conteudo {
     }
 
     public void setDescricao(String descricao) {
-        this.descricao = descricao;
+        if (descricao == null || descricao.trim().isEmpty()) {
+            throw new IllegalArgumentException("Descrição não pode ser nula ou vazia");
+        }
+        this.descricao = descricao.trim();
     }
 }
